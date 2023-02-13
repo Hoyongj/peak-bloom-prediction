@@ -42,12 +42,10 @@ There is a fluctuation over time due to periodic phenomenon like La Niña. (Henc
 cherry_trans <- cherry %>% mutate(
   year_sin = sin(pi / 5.5 * year),
   year_cos = cos(pi / 5.5 * year),
-  lat_sin = sin(lat),
-  lat_cos = cos(lat),
-  long_sin = sin(long),
-  long_cos = cos(long),
-  alt_sin = sin(alt),
-  alt_cos = cos(alt),
+  lat_sin = sin(lat * pi / 180),
+  lat_cos = cos(lat * pi / 180),
+  long_sin = sin(long * pi / 180),
+  long_cos = cos(long * pi / 180),
 ) %>% 
   select(-bloom_date)
   
@@ -60,8 +58,12 @@ modelbyAIC<-step(cherry_trans_fit,direction="both")
 ## Prediction
 
 ```{r}
-make_prediction <- function(new_year, new_location) {
-  new_data <- tibble(year = new_year, year_sin = sin(pi / 5.5 * year), location = new_location)
+make_prediction <- function(new_location, new_lat, new_long, new_alt, new_year) {
+  new_data <- tibble(year = new_year, year_sin = sin(pi / 5.5 * year), year_cos = cos(pi / 5.5 * year), location = new_location, lat = new_lat, long = new_long, alt = new_alt, 
+  lat_sin = sin(lat * pi / 180),
+  lat_cos = cos(lat * pi / 180),
+  long_sin = sin(long * pi / 180),
+  long_cos = cos(long * pi / 180),)
   predict(modelbyAIC,
           newdata=new_data,
           interval = "none",
@@ -74,10 +76,10 @@ predict_tb <- tibble(
 )
 
 predict_tb <- predict_tb %>%
-  mutate(kyoto = as.integer(make_prediction(year,"kyoto"))) %>%
-  mutate(liestal = as.integer(make_prediction(year,"liestal"))) %>%
-  mutate(washingtondc = as.integer(make_prediction(year,"washingtondc"))) %>%
-  mutate(vancouver = as.integer(make_prediction(year,"vancouver")))
+  mutate(kyoto = as.integer(make_prediction("kyoto",35.0119831,135.6761135,44, year))) %>%
+  mutate(liestal = as.integer(make_prediction("liestal",47.4814,7.730519,350, year))) %>%
+  mutate(washingtondc = as.integer(make_prediction("washingtondc",38.8853496,-77.0386278,0, year))) %>%
+  mutate(vancouver = as.integer(make_prediction("vancouver",49.2237,-123.1636,24, year)))
 
 predict_tb
 ```
