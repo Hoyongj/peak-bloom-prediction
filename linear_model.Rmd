@@ -47,7 +47,9 @@ cherry_trans <- cherry %>% mutate(
   long_sin = sin(long * pi / 180),
   long_cos = cos(long * pi / 180),
 ) %>% 
-  select(-bloom_date)
+  select(-bloom_date) %>%
+  filter(year > 1990)
+  
   
 
 cherry_trans_fit <- lm(bloom_doy ~ ., cherry_trans)
