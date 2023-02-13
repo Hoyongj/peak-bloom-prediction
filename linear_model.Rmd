@@ -1,0 +1,89 @@
+---
+title: "Peak Bloom Prediction by Linear Model"
+author: "Hoyong Jung, Taehyoung Kim"
+date: "02/13/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+In this analysis, our group predicts peak bloom date over the next decade for given 4 locations by using multiple linear regression.
+
+## Dependencies
+
+```{r, message=FALSE}
+library(tidyverse)
+library(rnoaa)
+```
+
+## Load the data
+
+The data for each of the four main sites were loaded by tidyverse function called `read_csv` instead of `read.csv`.
+
+```{r, message=FALSE, warning=FALSE}
+cherry <- read_csv("data/washingtondc.csv") %>% 
+  bind_rows(read_csv("data/liestal.csv")) %>% 
+  bind_rows(read_csv("data/vancouver.csv")) %>% 
+  bind_rows(read_csv("data/kyoto.csv")) %>%
+  mutate(location = factor(location))
+```
+
+## Approach
+
+There is a fluctuation over time due to periodic phenomenon like La Niña. (Hence, time series can improve the statistical model.) However, in this analysis, I want to approximate this phenomenon with trigonometric transform based linear regression model.
+
+```{r}
+# cherry_fit <- lm(bloom_doy ~ location+lat+long+alt+year, cherry)
+
+cherry_trans <- cherry %>% mutate(
+  year_sin = sin(pi / 5.5 * year),
+  year_cos = cos(pi / 5.5 * year),
+  lat_sin = sin(lat),
+  lat_cos = cos(lat),
+  long_sin = sin(long),
+  long_cos = cos(long),
+  alt_sin = sin(alt),
+  alt_cos = cos(alt),
+) %>% 
+  select(-bloom_date)
+  
+
+cherry_trans_fit <- lm(bloom_doy ~ ., cherry_trans)
+
+modelbyAIC<-step(cherry_trans_fit,direction="both")
+```
+
+## Prediction
+
+```{r}
+make_prediction <- function(new_year, new_location) {
+  new_data <- tibble(year = new_year, year_sin = sin(pi / 5.5 * year), location = new_location)
+  predict(modelbyAIC,
+          newdata=new_data,
+          interval = "none",
+  )
+  
+}
+
+predict_tb <- tibble(
+  year = c(2023:2032)
+)
+
+predict_tb <- predict_tb %>%
+  mutate(kyoto = as.integer(make_prediction(year,"kyoto"))) %>%
+  mutate(liestal = as.integer(make_prediction(year,"liestal"))) %>%
+  mutate(washingtondc = as.integer(make_prediction(year,"washingtondc"))) %>%
+  mutate(vancouver = as.integer(make_prediction(year,"vancouver")))
+
+predict_tb
+```
+
+## Export Data
+
+```{r}
+write_csv(predict_tb, "cherry-predictions.csv")
+```
