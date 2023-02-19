@@ -13,11 +13,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 In this analysis, our group predicts peak bloom date over the next decade for given 4 locations by using multiple linear regression.
 
-## Dependencies
+## Dependencies and Functions
 
 ```{r, message=FALSE}
+# Packages
 library(tidyverse)
 library(rnoaa)
+
+# Functions for Weather Condition
+source("add_other_conditions.R")
 ```
 
 ## Load the data
@@ -30,6 +34,17 @@ cherry <- read_csv("data/washingtondc.csv") %>%
   bind_rows(read_csv("data/vancouver.csv")) %>% 
   bind_rows(read_csv("data/kyoto.csv")) %>%
   mutate(location = factor(location))
+```
+
+## Add weather data (>1990)
+
+```{r}
+cherry_temperature <- temperature_last_4("washingtondc") %>% 
+  bind_rows(temperature_last_4("liestal")) %>% 
+  bind_rows(temperature_last_4("kyoto")) %>% 
+  bind_rows(temperature_last_4("vancouver")) %>%
+  mutate(location = factor(location)) %>% 
+  mutate(year = as.numeric(year))
 ```
 
 ## Approach
@@ -48,11 +63,12 @@ cherry_trans <- cherry %>% mutate(
   long_cos = cos(long * pi / 180),
 ) %>% 
   select(-bloom_date) %>%
-  filter(year > 1990)
+  filter(year > 1990) %>%
+  left_join(cherry_temperature)
   
   
 
-cherry_trans_fit <- lm(bloom_doy ~ ., cherry_trans)
+cherry_trans_fit <- lm(bloom_doy ~ ., data = na.omit(cherry_trans))
 
 modelbyAIC<-step(cherry_trans_fit,direction="both")
 ```
