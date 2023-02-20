@@ -1,51 +1,76 @@
+# Title: Mean Absolute Error (MAE) based Cross Validation (CV)
+# Author: Hoyong Jung
+# Date: Feb. 20, 2023
+
+
 library(tidyverse)
 library(boot)
 
-# # cost of CV
-# abs_diff <- function(observed_value, expected_value) {abs(observed_value - expected_value)}
+# Notes
+# As following functions use CV Algorithm,
+# Results can differ from the given file.
 
-model_terms = c(1,0,0,0,0,0,0,0,0) # Which means only `year` is used for regression model
 
-model_creation <- function(model_temrs_vector) {
+# cost of MAE CV
+cost_mae <- function(observed_value, expected_value) {
+  mean(abs(observed_value - expected_value))
+}
+
+# This function get `model term` vector
+# returns `model` string
+model_creation <- function(model_terms_vector) {
   model = "bloom_doy ~"
-  if (model_terms[1] == 1) {
+  if (model_terms_vector[1] == 1) {
     model = paste(model,"location", sep = " + ")
   }
-  if (model_terms[2] == 1) {
+  if (model_terms_vector[2] == 1) {
     model = paste(model,"lat", sep = " + ")
   }
-  if (model_terms[3] == 1) {
+  if (model_terms_vector[3] == 1) {
     model = paste(model,"long", sep = " + ")
   }
-  if (model_terms[4] == 1) {
+  if (model_terms_vector[4] == 1) {
     model = paste(model,"alt", sep = " + ")
   }
-  if (model_terms[5] == 1) {
+  if (model_terms_vector[5] == 1) {
     model = paste(model,"year", sep = " + ")
   }
-  if (model_terms[6] == 1) {
+  if (model_terms_vector[6] == 1) {
     model = paste(model,"year_sin", sep = " + ")
   }
-  if (model_terms[7] == 1) {
+  if (model_terms_vector[7] == 1) {
     model = paste(model,"year_cos", sep = " + ")
   }
-  if (model_terms[8] == 1) {
+  if (model_terms_vector[8] == 1) {
     model = paste(model,"lat_sin", sep = " + ")
   }
-  if (model_terms[9] == 1) {
+  if (model_terms_vector[9] == 1) {
     model = paste(model,"lat_cos", sep = " + ")
   }
   return(model)
 }
 
 
-md <- model_creation(model_terms)
+# This function get `model term` vector
+# returns MAE of CV 
+model_mae_cv <- function(model_terms_vector) {
+  cmodel <- model_creation(model_terms_vector)
+  cfit <- glm(as.formula(cmodel),data=cherry_trans)
+  mae_cv <- cv.glm(data = cherry_trans, cost = cost_mae,glmfit = base_fit,K=10)
+  return(mae_cv$delta[1])
+}
 
-base_fit <- glm(as.formula(base_model),data=cherry_trans)
-
-cc <- cv.glm(data = cherry_trans,glmfit = fit,K=5)
-cc$delta[1]
-
+# model_terms = c(1,0,0,0,0,0,0,0,0) # Which means only `year` is used for regression model
+#
+# md <- model_creation(model_terms)
+#
+# base_fit <- glm(as.formula(base_model),data=cherry_trans)
+# 
+# cc <- cv.glm(data = cherry_trans,glmfit = base_fit,K=5)
+# cc$delta[1]
+# 
+# cc <- cv.glm(data = cherry_trans, cost = abs_diff,glmfit = base_fit,K=5)
+# cc$delta[1]
 
 
 # df <- tibble(a = c(1, 2, 3), b = c(10, 20, 30), c = c(5, 6, 7), d = c(12, 23, 34))
