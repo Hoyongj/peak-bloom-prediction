@@ -19,7 +19,7 @@ cost_mae <- function(observed_value, expected_value) {
 # This function get `model term` vector
 # returns `model` string
 model_creation <- function(model_terms_vector) {
-  model = "bloom_doy ~"
+  model = "bloom_doy ~ year"
   if (model_terms_vector[1] == 1) {
     model = paste(model,"location", sep = " + ")
   }
@@ -33,18 +33,15 @@ model_creation <- function(model_terms_vector) {
     model = paste(model,"alt", sep = " + ")
   }
   if (model_terms_vector[5] == 1) {
-    model = paste(model,"year", sep = " + ")
-  }
-  if (model_terms_vector[6] == 1) {
     model = paste(model,"year_sin", sep = " + ")
   }
-  if (model_terms_vector[7] == 1) {
+  if (model_terms_vector[6] == 1) {
     model = paste(model,"year_cos", sep = " + ")
   }
-  if (model_terms_vector[8] == 1) {
+  if (model_terms_vector[7] == 1) {
     model = paste(model,"lat_sin", sep = " + ")
   }
-  if (model_terms_vector[9] == 1) {
+  if (model_terms_vector[8] == 1) {
     model = paste(model,"lat_cos", sep = " + ")
   }
   return(model)
@@ -52,12 +49,50 @@ model_creation <- function(model_terms_vector) {
 
 
 # This function get `model term` vector
-# returns MAE of CV 
+# returns MAE of 10-folds-CV 
 model_mae_cv <- function(model_terms_vector) {
   cmodel <- model_creation(model_terms_vector)
   cfit <- glm(as.formula(cmodel),data=cherry_trans)
   mae_cv <- cv.glm(data = cherry_trans, cost = cost_mae,glmfit = base_fit,K=10)
   return(mae_cv$delta[1])
+}
+
+
+# This function get `void`
+# return the `model` string with lowest MAE
+stepwise_cv_model_selection <- function() {
+  cur_vector <- c(0,0,0,0,0,0,0,0)
+  cur_mae <- model_mae_cv(cur_vector)
+  go <- TRUE
+  while (go) {
+    go <- FALSE
+    for (i in 1:8) {
+      new_mae <- change_vector_mae(cur_vector,i)
+      if (new_mae < cur_mae) {
+        cur_mae <- new_mae
+        cur_vector <- change_vector_mode(cur_vector,i)
+        go <- TRUE
+      }
+    }
+  }
+  return(model_creation(cur_vector))
+}
+
+# This function get `vector`
+# and change vector mode at the given position
+change_vector_mode <- function(model_terms_vector, posi) {
+  if (model_terms_vector[posi] == 0) {
+    model_terms_vector[posi] <- 1
+  } else {
+    model_terms_vector[posi] <- 0
+  }
+  return(model_terms_vector)
+}
+
+# get changed vector mode 
+# return MAE of changing
+change_vector_mae <- function(model_terms_vector, posi) {
+  return(change_vector_mode(model_terms_vector, posi))
 }
 
 # model_terms = c(1,0,0,0,0,0,0,0,0) # Which means only `year` is used for regression model
