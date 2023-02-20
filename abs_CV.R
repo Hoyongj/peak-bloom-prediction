@@ -92,7 +92,7 @@ change_vector_mode <- function(model_terms_vector, posi) {
 # get changed vector mode 
 # return MAE of changing
 change_vector_mae <- function(model_terms_vector, posi) {
-  return(change_vector_mode(model_terms_vector, posi))
+  return(model_mae_cv(change_vector_mode(model_terms_vector, posi)))
 }
 
 # model_terms = c(1,0,0,0,0,0,0,0,0) # Which means only `year` is used for regression model
