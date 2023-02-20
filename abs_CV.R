@@ -1,4 +1,4 @@
-# Title: Mean Absolute Error (MAE) based on Cross Validation (CV)
+# Title: Mean Absolute Error (MAE) based Cross Validation (CV)
 # Author: Hoyong Jung
 # Date: Feb. 20, 2023
 
