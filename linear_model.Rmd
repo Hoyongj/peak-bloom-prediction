@@ -18,6 +18,7 @@ In this analysis, our group predicts peak bloom date over the next decade for gi
 ```{r, message=FALSE}
 library(tidyverse)
 library(rnoaa)
+library(boot)
 ```
 
 ## Load the data
