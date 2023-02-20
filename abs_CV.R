@@ -1,4 +1,4 @@
-# Title: Mean Absolute Error (MAE) based Cross Validation (CV)
+# Title: Mean Absolute Error (MAE) based on Cross Validation (CV)
 # Author: Hoyong Jung
 # Date: Feb. 20, 2023
 
@@ -66,15 +66,24 @@ stepwise_cv_model_selection <- function() {
   go <- TRUE
   while (go) {
     go <- FALSE
+    min_idx = 0
     for (i in 1:8) {
       new_mae <- change_vector_mae(cur_vector,i)
+      print("==")
+      print(new_mae)
+      print(model_creation(change_vector_mode(cur_vector, i)))
       if (new_mae < cur_mae) {
         cur_mae <- new_mae
-        cur_vector <- change_vector_mode(cur_vector,i)
-        go <- TRUE
+        min_idx <- i
       }
     }
+    if (min_idx) {
+      cur_vector <- change_vector_mode(cur_vector,min_idx)
+      go <- TRUE
+    }
   }
+  print(">>")
+  print(cur_mae)
   return(model_creation(cur_vector))
 }
 
@@ -146,3 +155,10 @@ change_vector_mae <- function(model_terms_vector, posi) {
 # # result <- 1:2**length(colnames(cherry_trans))
 # # form <- 1:2**length(colnames(cherry_trans))
 # # cv.err <- map_dbl(result, cv5) # It may takes some time.
+
+#[1] 5.073898
+#[1] "bloom_doy ~ year + alt + lat_cos"
+
+#[1] 5.076894
+#[1] "bloom_doy ~ year + year_sin"
+
