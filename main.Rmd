@@ -3,8 +3,8 @@ title: "Peak Bloom Prediction by Linear Model"
 author: "Hoyong Jung, Taehyoung Kim"
 date: "02/13/2023"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -90,7 +90,8 @@ predict_tb
 ## Export Data
 
 ```{r}
-write_csv(predict_tb, "cherry-predictions.csv")
+write.csv(predict_tb, file = "cherry-predictions.csv",
+          row.names = FALSE)
 ```
 
 ## Appendix 1

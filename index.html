@@ -404,7 +404,7 @@ model.)</p>
 cherry_trans_fit &lt;- lm(bloom_doy ~ ., cherry_trans)
 
 model_string &lt;- stepwise_cv_model_selection()</code></pre>
-<pre><code>## [1] &quot;final MAE: 4.60019427790234&quot;
+<pre><code>## [1] &quot;final MAE: 4.60019427790235&quot;
 ## [1] &quot;final model: bloom_doy ~ year + long + year_sin&quot;</code></pre>
 <pre class="r"><code>final_model &lt;- glm(as.formula(model_string),data=cherry_trans)</code></pre>
 </div>
@@ -450,7 +450,8 @@ predict_tb</code></pre>
 </div>
 <div id="export-data" class="section level2">
 <h2>Export Data</h2>
-<pre class="r"><code>write_csv(predict_tb, &quot;cherry-predictions.csv&quot;)</code></pre>
+<pre class="r"><code>write.csv(predict_tb, file = &quot;cherry-predictions.csv&quot;,
+          row.names = FALSE)</code></pre>
 </div>
 <div id="appendix-1" class="section level2">
 <h2>Appendix 1</h2>
