@@ -19,6 +19,8 @@ In this analysis, our group predicts peak bloom date over the next decade for gi
 library(tidyverse)
 library(rnoaa)
 library(boot)
+
+source("abs_CV.R")
 ```
 
 ## Load the data
@@ -53,7 +55,9 @@ cherry_trans <- cherry %>% mutate(
 
 cherry_trans_fit <- lm(bloom_doy ~ ., cherry_trans)
 
-modelbyAIC<-step(cherry_trans_fit,direction="both")
+model_string <- stepwise_cv_model_selection()
+
+final_model <- glm(as.formula(model_string),data=cherry_trans)
 ```
 
 ## Prediction
@@ -65,7 +69,7 @@ make_prediction <- function(new_location, new_lat, new_long, new_alt, new_year) 
   lat_cos = cos(lat * pi / 180),
   long_sin = sin(long * pi / 180),
   long_cos = cos(long * pi / 180),)
-  predict(modelbyAIC,
+  predict(final_model,
           newdata=new_data,
           interval = "none",
   )
