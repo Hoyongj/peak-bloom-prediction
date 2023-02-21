@@ -11,9 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Abstract
 
-In this analysis, our group predicts peak bloom date over the next decade for given 4 locations by using multiple linear regression.
+In this analysis, our group predicted 'peak bloom date' over the next decade for given 4 locations by using multiple linear regression. For the model selection, leave one out cross-validation (LOOCV) was adjusted with mean absolute error (MAE). 
 
-## Dependencies
+## Load Dependencies and Functions
 
 ```{r, message=FALSE}
 library(tidyverse)
@@ -25,8 +25,6 @@ source("abs_CV.R")
 
 ## Load the data
 
-The data for each of the four main sites were loaded by tidyverse function called `read_csv` instead of `read.csv`.
-
 ```{r, message=FALSE, warning=FALSE}
 cherry <- read_csv("data/washingtondc.csv") %>% 
   bind_rows(read_csv("data/liestal.csv")) %>% 
@@ -37,7 +35,7 @@ cherry <- read_csv("data/washingtondc.csv") %>%
 
 ## Approach
 
-There is a fluctuation over time due to periodic phenomenon like La Niña. (Hence, time series can improve the statistical model.) However, in this analysis, I want to approximate this phenomenon with trigonometric transform based linear regression model.
+There is a fluctuation over time due to periodic phenomenon like solar cycle. (Hence, time series can improve the statistical model.) However, in this analysis, the group wanted to approximate this phenomenon with trigonometric transform based linear regression model. (For example, as $\mathrm{year\_sin} = \sin(\frac{\pi\cdot \mathrm{year}}{5.5})$ has 11 year cycle, it can improve the model.)
 
 ```{r}
 # cherry_fit <- lm(bloom_doy ~ location+lat+long+alt+year, cherry)
