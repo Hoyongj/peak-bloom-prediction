@@ -22,7 +22,7 @@ library(tidyverse)
 library(rnoaa)
 library(boot)
 
-source("abs_CV.R")
+source("abs_CV.R") # `stepwise_cv_model_selection` Appendix 1
 ```
 
 ## Load the data
@@ -40,8 +40,6 @@ cherry <- read_csv("data/washingtondc.csv") %>%
 There is a fluctuation over time due to periodic phenomenon like solar cycle. (Hence, time series can improve the statistical model.) However, in this analysis, the group wanted to approximate this phenomenon with trigonometric transform based linear regression model. (For example, as $\mathrm{year\_sin} = \sin(\frac{\pi\cdot \mathrm{year}}{5.5})$ has 11 year cycle, it can improve the model.)
 
 ```{r}
-# cherry_fit <- lm(bloom_doy ~ location+lat+long+alt+year, cherry)
-
 cherry_trans <- cherry %>% mutate(
   year_sin = sin(pi / 5.5 * year),
   year_cos = cos(pi / 5.5 * year),
@@ -93,4 +91,32 @@ predict_tb
 
 ```{r}
 write_csv(predict_tb, "cherry-predictions.csv")
+```
+
+## Appendix 1
+
+```{r, eval=FALSE}
+stepwise_cv_model_selection <- function() {
+  cur_vector <- c(0,0,0,0,0,0,0)
+  cur_mae <- model_mae_cv(cur_vector)
+  go <- TRUE
+  while (go) {
+    go <- FALSE
+    min_idx = 0
+    for (i in 1:7) {
+      new_mae <- change_vector_mae(cur_vector,i)
+      if (new_mae < cur_mae) {
+        cur_mae <- new_mae
+        min_idx <- i
+      }
+    }
+    if (min_idx) {
+      cur_vector <- change_vector_mode(cur_vector,min_idx)
+      go <- TRUE
+    }
+  }
+  print(paste("final MAE:", cur_mae))
+  print(paste("final model:", model_creation(cur_vector)))
+  return(model_creation(cur_vector))
+}
 ```
