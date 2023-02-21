@@ -2,7 +2,9 @@
 title: "Peak Bloom Prediction by Linear Model"
 author: "Hoyong Jung, Taehyoung Kim"
 date: "02/13/2023"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -79,10 +81,10 @@ predict_tb <- tibble(
 )
 
 predict_tb <- predict_tb %>%
-  mutate(kyoto = as.integer(make_prediction("kyoto",35.0119831,135.6761135,44, year))) %>%
-  mutate(liestal = as.integer(make_prediction("liestal",47.4814,7.730519,350, year))) %>%
-  mutate(washingtondc = as.integer(make_prediction("washingtondc",38.8853496,-77.0386278,0, year))) %>%
-  mutate(vancouver = as.integer(make_prediction("vancouver",49.2237,-123.1636,24, year)))
+  mutate(kyoto = round(make_prediction("kyoto",35.0119831,135.6761135,44, year))) %>%
+  mutate(liestal = round(make_prediction("liestal",47.4814,7.730519,350, year))) %>%
+  mutate(washingtondc = round(make_prediction("washingtondc",38.8853496,-77.0386278,0, year))) %>%
+  mutate(vancouver = round(make_prediction("vancouver",49.2237,-123.1636,24, year)))
 
 predict_tb
 ```
