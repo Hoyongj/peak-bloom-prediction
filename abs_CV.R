@@ -21,7 +21,7 @@ cost_mae <- function(observed_value, expected_value) {
 model_creation <- function(model_terms_vector) {
   model = "bloom_doy ~ year"
   if (model_terms_vector[1] == 1) {
-    model = paste(model,"location", sep = " + ")
+    model = paste(model,"lat_cos", sep = " + ")
   }
   if (model_terms_vector[2] == 1) {
     model = paste(model,"lat", sep = " + ")
@@ -41,9 +41,6 @@ model_creation <- function(model_terms_vector) {
   if (model_terms_vector[7] == 1) {
     model = paste(model,"lat_sin", sep = " + ")
   }
-  if (model_terms_vector[8] == 1) {
-    model = paste(model,"lat_cos", sep = " + ")
-  }
   return(model)
 }
 
@@ -53,7 +50,7 @@ model_creation <- function(model_terms_vector) {
 model_mae_cv <- function(model_terms_vector) {
   cmodel <- model_creation(model_terms_vector)
   cfit <- glm(as.formula(cmodel),data=cherry_trans)
-  mae_cv <- cv.glm(data = cherry_trans, cost = cost_mae,glmfit = base_fit,K=10)
+  mae_cv <- cv.glm(data = cherry_trans, cost = cost_mae,glmfit = cfit,K=nrow(cherry_trans))
   return(mae_cv$delta[1])
 }
 
@@ -61,17 +58,17 @@ model_mae_cv <- function(model_terms_vector) {
 # This function get `void`
 # return the `model` string with lowest MAE
 stepwise_cv_model_selection <- function() {
-  cur_vector <- c(0,0,0,0,0,0,0,0)
+  cur_vector <- c(0,0,0,0,0,0,0)
   cur_mae <- model_mae_cv(cur_vector)
   go <- TRUE
   while (go) {
     go <- FALSE
     min_idx = 0
-    for (i in 1:8) {
+    for (i in 1:7) {
       new_mae <- change_vector_mae(cur_vector,i)
-      # print("==")
-      # print(new_mae)
-      # print(model_creation(change_vector_mode(cur_vector, i)))
+      print("==")
+      print(new_mae)
+      print(model_creation(change_vector_mode(cur_vector, i)))
       if (new_mae < cur_mae) {
         cur_mae <- new_mae
         min_idx <- i
