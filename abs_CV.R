@@ -46,7 +46,7 @@ model_creation <- function(model_terms_vector) {
 
 
 # This function get `model term` vector
-# returns MAE of 10-folds-CV 
+# returns MAE of leave one out CV (LOOCV)
 model_mae_cv <- function(model_terms_vector) {
   cmodel <- model_creation(model_terms_vector)
   cfit <- glm(as.formula(cmodel),data=cherry_trans)
