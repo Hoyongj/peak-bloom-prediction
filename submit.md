@@ -12,4 +12,10 @@ As temperature can be explained with sunlight conditions, we tried to compensate
 ## Approach 3
 Instead of using AIC, we used cross-validation (CV) that measures MAE. Also, to use this function for model selection, we defined stepwise model selecting function for MAE-based CV. Considering the characteristic that `/data/vancouver.csv` has only 1 row, it is impossible to use `location` as categorical variable. So we dropped `location` variable for the final model.
 
-<!-- If we try to fit the generalized linear model based the data, it shows that there is high correlation between `temperature` and `bloom_doy`. To fit the model in this case, we need to use generalized model as there are missing data like kyoto However, `library(rnoaa)` -->
+## Discussion
+The final model obtained by the "Approach 3" was `bloom_doy ~ year + long + year_sin`. That is quite close to the model from "Approach 2", which was `bloom_doy ~ year + location + year_sin`. So it demonstrates that criteria for AIC and MAE-based CV can yield similar error measure for the fitted model.
+Regarding limitation of the "approach 3", it still use `glm` function, which is based on least square method. So, using algorithm with least absolute deviation (LAD) can improve the error term in this analysis. However, there are more than 1 possible algorithms and solutions for LAD, which is decided depending on situation. So fitting model with LAD requires more attention, as it can be biassed as well. 
+
+
+
+
