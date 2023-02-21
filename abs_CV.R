@@ -66,7 +66,7 @@ stepwise_cv_model_selection <- function() {
     min_idx = 0
     for (i in 1:7) {
       new_mae <- change_vector_mae(cur_vector,i)
-      print("==")
+      print("")
       print(new_mae)
       print(model_creation(change_vector_mode(cur_vector, i)))
       if (new_mae < cur_mae) {
@@ -79,8 +79,8 @@ stepwise_cv_model_selection <- function() {
       go <- TRUE
     }
   }
-  # print(">>")
-  # print(cur_mae)
+  print("==final==")
+  print(cur_mae)
   return(model_creation(cur_vector))
 }
 
