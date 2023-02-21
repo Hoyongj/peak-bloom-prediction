@@ -21,7 +21,7 @@ cost_mae <- function(observed_value, expected_value) {
 model_creation <- function(model_terms_vector) {
   model = "bloom_doy ~ year"
   if (model_terms_vector[1] == 1) {
-    model = paste(model,"lat_cos", sep = " + ")
+    model = paste(model,"alt", sep = " + ")
   }
   if (model_terms_vector[2] == 1) {
     model = paste(model,"lat", sep = " + ")
@@ -30,13 +30,13 @@ model_creation <- function(model_terms_vector) {
     model = paste(model,"long", sep = " + ")
   }
   if (model_terms_vector[4] == 1) {
-    model = paste(model,"alt", sep = " + ")
+    model = paste(model,"year_cos", sep = " + ")
   }
   if (model_terms_vector[5] == 1) {
     model = paste(model,"year_sin", sep = " + ")
   }
   if (model_terms_vector[6] == 1) {
-    model = paste(model,"year_cos", sep = " + ")
+    model = paste(model,"lat_cos", sep = " + ")
   }
   if (model_terms_vector[7] == 1) {
     model = paste(model,"lat_sin", sep = " + ")
