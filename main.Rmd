@@ -49,9 +49,6 @@ cherry_trans <- cherry %>% mutate(
   select(-bloom_date) %>%
   filter(year > 1990)
   
-  
-
-cherry_trans_fit <- lm(bloom_doy ~ ., cherry_trans)
 
 model_string <- stepwise_cv_model_selection()
 
