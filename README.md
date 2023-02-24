@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Peak Bloom Prediction by Linear Regression and Model Selection
 
 For this project, our group predicted "cherry blossom peak bloom" with linear regression in 3 different approaches. And, to evaluate the prediction model's accuracy, we used the Akaike information criterion and cross-validation. This narrative introduces 3 approaches and illustrates the limitation of the models.
@@ -20,5 +25,5 @@ Regarding limitation of the "approach 3", it still uses the `glm` function, whic
 Also, the Vancouver data set does not have enough rows to make `species` inferences. In other words, this analysis was not able to find a correlation between `species` and `bloom_doy`. Considering the above 2 models, `location` or `long` variables possibly reflects the effects of different species.
 
 ## Conclusion
-Even though there were many factors that made our model unstable, we could find the significance of `year` itself and the cycle of it toward `bloom_doy`.
+Even though there were many factors that made our model unstable, we could find the significance of `year` itself and the cycle of it toward `bloom_doy`. By using this knowledge, our group could make a linear model for prediction.
 
