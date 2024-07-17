@@ -1,5 +1,7 @@
 # Peak Bloom Prediction by Linear Regression and Model Selection
 
+**Hoyong Jung**
+
 For this project, our group predicted "cherry blossom peak bloom" with linear regression in 3 different approaches. And, to evaluate the prediction model's accuracy, we used the Akaike information criterion and cross-validation. This narrative introduces 3 approaches and illustrates the limitation of the models.
 
 
