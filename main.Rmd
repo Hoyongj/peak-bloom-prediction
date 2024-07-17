@@ -1,0 +1,120 @@
+---
+title: "Peak Bloom Prediction by Linear Model"
+author: "Hoyong Jung"
+date: "02/13/2023"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+In this analysis, our group predicted 'peak bloom date' over the next decade for given 4 locations by using multiple linear regression. For the model selection, leave one out cross-validation (LOOCV) cost by mean absolute error (MAE) was used for stepwise model selection. 
+
+## Load Dependencies and Functions
+
+```{r, message=FALSE}
+library(tidyverse)
+library(rnoaa)
+library(boot)
+
+source("abs_CV.R") # `stepwise_cv_model_selection` Appendix 1
+```
+
+## Load the data
+
+```{r, message=FALSE, warning=FALSE}
+cherry <- read_csv("data/washingtondc.csv") %>% 
+  bind_rows(read_csv("data/liestal.csv")) %>% 
+  bind_rows(read_csv("data/vancouver.csv")) %>% 
+  bind_rows(read_csv("data/kyoto.csv")) %>%
+  mutate(location = factor(location))
+```
+
+## Approach
+
+There is a fluctuation over time due to periodic phenomenon like solar cycle. Considering it, time series analysis can improve the statistical model. However, in this analysis, the group wanted to approximate this phenomenon with prior knowledge. Especially, trigonometric transformed explanatory variables are used for this linear regression model. (For example, as $\mathrm{year_{sin}} = \sin(\frac{\pi\cdot \mathrm{year}}{5.5})$ has 11 year cycle, it can improve the model.)
+
+```{r}
+cherry_trans <- cherry %>% mutate(
+  year_sin = sin(pi / 5.5 * year),
+  year_cos = cos(pi / 5.5 * year),
+  lat_sin = sin(lat * pi / 180),
+  lat_cos = cos(lat * pi / 180),
+) %>% 
+  select(-bloom_date) %>%
+  filter(year > 1990)
+  
+
+model_string <- stepwise_cv_model_selection()
+
+final_model <- glm(as.formula(model_string),data=cherry_trans)
+```
+
+## Prediction
+
+```{r}
+make_prediction <- function(new_location, new_lat, new_long, new_alt, new_year) {
+  new_data <- tibble(year = new_year, year_sin = sin(pi / 5.5 * year), year_cos = cos(pi / 5.5 * year), location = new_location, lat = new_lat, long = new_long, alt = new_alt, 
+  lat_sin = sin(lat * pi / 180),
+  lat_cos = cos(lat * pi / 180),
+  long_sin = sin(long * pi / 180),
+  long_cos = cos(long * pi / 180),)
+  predict(final_model,
+          newdata=new_data,
+          interval = "none",
+  )
+  
+}
+
+predict_tb <- tibble(
+  year = c(2023:2032)
+)
+
+predict_tb <- predict_tb %>%
+  mutate(kyoto = round(make_prediction("kyoto",35.0119831,135.6761135,44, year))) %>%
+  mutate(liestal = round(make_prediction("liestal",47.4814,7.730519,350, year))) %>%
+  mutate(washingtondc = round(make_prediction("washingtondc",38.8853496,-77.0386278,0, year))) %>%
+  mutate(vancouver = round(make_prediction("vancouver",49.2237,-123.1636,24, year)))
+
+predict_tb
+```
+
+## Export Data
+
+```{r}
+write.csv(predict_tb, file = "cherry-predictions.csv",
+          row.names = FALSE)
+```
+
+## Appendix 1
+
+```{r, eval=FALSE}
+stepwise_cv_model_selection <- function() {
+  cur_vector <- c(0,0,0,0,0,0,0)
+  cur_mae <- model_mae_cv(cur_vector)
+  go <- TRUE
+  while (go) {
+    go <- FALSE
+    min_idx = 0
+    for (i in 1:7) {
+      new_mae <- change_vector_mae(cur_vector,i)
+      if (new_mae < cur_mae) {
+        cur_mae <- new_mae
+        min_idx <- i
+      }
+    }
+    if (min_idx) {
+      cur_vector <- change_vector_mode(cur_vector,min_idx)
+      go <- TRUE
+    }
+  }
+  print(paste("final MAE:", cur_mae))
+  print(paste("final model:", model_creation(cur_vector)))
+  return(model_creation(cur_vector))
+}
+```
